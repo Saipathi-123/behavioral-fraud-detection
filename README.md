@@ -74,21 +74,41 @@ Libraries
 behavioral-fraud-detection/
 │
 ├── data/
+│   ├── processed/
+│   │     behavioral_features.csv
+│   │
+│   └── raw/
+│         simulated_events.csv
+│
 ├── models/
 │   ├── isolation_forest.pkl
-│   └── scaler.pkl
+│   ├── scaler.pkl
+│   ├── score_thresholds.pkl
+│   └── thresholds.json
 │
-├── notebooks/
 ├── src/
 │   ├── dashboard/
-│   │      └── app.py
-│   ├── preprocessing/
-│   ├── training/
-│   └── utils/
+│   │      app.py
+│   │
+│   ├── features/
+│   │      feature_engineering.py
+│   │
+│   ├── models/
+│   │      train_model.py
+│   │
+│   ├── scripts/
+│   │      inspect_scores.py
+│   │      save_thresholds.py
+│   │
+│   ├── stream/
+│        full_event_generator.py
+│        realtime_fraud_detector.py
+│   
+│   
 │
-├── requirements.txt
+├── .gitignore
 ├── README.md
-└── .gitignore
+├── requirements.txt
 ```
 
 ---
