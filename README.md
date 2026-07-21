@@ -1,114 +1,67 @@
 # 🛡️ AI Behavioral Fraud Detection Platform
 
-An AI-powered behavioral biometrics system that detects suspicious user activity using **Machine Learning**. The platform analyzes user behavior such as typing speed, mouse movement, keystroke intervals, session duration, and IP change patterns to identify potential fraud in real time.
+An end-to-end, real-time behavioral biometrics system that detects account takeover and suspicious user activity using **Unsupervised Machine Learning**. 
+
+The platform continuously evaluates features such as typing speed, mouse velocity, keystroke intervals, session duration, and IP change frequency to flag anomalies using an Isolation Forest pipeline.
 
 ---
 
-# 📌 Project Overview
+## 🚀 Features
 
-Traditional authentication methods such as usernames and passwords cannot always detect account takeover or impersonation attacks.
-
-This project introduces an intelligent behavioral fraud detection platform that continuously monitors user activity and detects anomalous behavior using the Isolation Forest algorithm.
-
----
-
-# 🚀 Features
-
-- AI-powered anomaly detection
-- Behavioral biometrics analysis
-- Real-time fraud prediction
-- Professional Streamlit dashboard
-- Threat level classification
-- AI security recommendations
-- Responsive UI
-- User-friendly interface
+- **Unsupervised Anomaly Detection**: Powered by Scikit-Learn's Isolation Forest algorithm.
+- **Behavioral Biometrics Pipeline**: Engine that extracts keystroke dynamics, movement speed, and network/session signals.
+- **Real-Time Streaming Engine**: Simulated live event generator feeding events directly to the detection model.
+- **Dynamic Risk Thresholding**: Score calibration with custom thresholds stored for low, medium, and high threat levels.
+- **Interactive Streamlit Dashboard**: Live security report visualizer, threat level classification, and actionable AI security recommendations.
 
 ---
 
-# 🧠 Machine Learning Model
+## 🧠 Machine Learning & Data Pipeline
 
-Algorithm:
-
-- Isolation Forest
-
-Learning Type:
-
-- Unsupervised Machine Learning
-
-Features Used:
-
-- Typing Speed
-- Keystroke Interval
-- Mouse Speed
-- Actions Per Minute
-- Session Duration
-- IP Change Rate
+* **Algorithm**: Isolation Forest (`scikit-learn`)
+* **Learning Style**: Unsupervised Machine Learning
+* **Extracted Features**:
+  * Typing Speed (WPM / Characters per second)
+  * Keystroke Intervals (Latency between presses)
+  * Mouse Velocity & Acceleration
+  * Actions Per Minute (APM)
+  * Session Duration
+  * IP Change Frequency Rate
 
 ---
 
-# 🛠️ Technology Stack
+## 📂 Project Structure
 
-Frontend
-
-- Streamlit
-
-Backend
-
-- Python
-
-Machine Learning
-
-- Scikit-learn
-
-Libraries
-
-- Pandas
-- NumPy
-- Joblib
-
----
-
-# 📂 Project Structure
-
-```
+```text
 behavioral-fraud-detection/
 │
 ├── data/
-│   ├── processed/
-│   │     behavioral_features.csv
-│   │
-│   └── raw/
-│         simulated_events.csv
+│   ├── raw/                  # Simulated event logs
+│   └── processed/            # Engineered behavioral features
 │
 ├── models/
-│   ├── isolation_forest.pkl
-│   ├── scaler.pkl
-│   ├── score_thresholds.pkl
-│   └── thresholds.json
+│   ├── isolation_forest.pkl  # Trained Isolation Forest model
+│   ├── scaler.pkl            # Feature scaling parameters
+│   ├── score_thresholds.pkl  # Custom anomaly score cutoffs
+│   └── thresholds.json       # Exported risk rules
 │
 ├── src/
 │   ├── dashboard/
-│   │      app.py
-│   │
+│   │   └── app.py            # Streamlit dashboard UI
 │   ├── features/
-│   │      feature_engineering.py
-│   │
+│   │   └── feature_engineering.py  # Feature extraction pipeline
 │   ├── models/
-│   │      train_model.py
-│   │
+│   │   └── train_model.py    # Model training script
 │   ├── scripts/
-│   │      inspect_scores.py
-│   │      save_thresholds.py
-│   │
-│   ├── stream/
-│        full_event_generator.py
-│        realtime_fraud_detector.py
-│   
-│   
+│   │   ├── inspect_scores.py # Score distribution analysis
+│   │   └── save_thresholds.py# Threshold config saver
+│   └── stream/
+│       ├── full_event_generator.py   # Live event simulator
+│       └── realtime_fraud_detector.py # Real-time detection engine
 │
 ├── .gitignore
 ├── README.md
-├── requirements.txt
+└── requirements.txt
 ```
 
 ---
@@ -118,29 +71,27 @@ behavioral-fraud-detection/
 Clone the repository
 
 ```bash
-git clone https://github.com/Saipathi-123/behavioral-fraud-detection.git
-```
-
-Navigate into the project
-
-```bash
+git clone [https://github.com/YOUR_USERNAME/behavioral-fraud-detection.git](https://github.com/YOUR_USERNAME/behavioral-fraud-detection.git)
 cd behavioral-fraud-detection
-```
-
-Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
+# Feature Extraction & Model Training
+Navigate into the project
+```
+1. Process raw behavioral logs into feature matrix
+python src/features/feature_engineering.py
 
+2. Train the Isolation Forest model and save artifacts
+python src/models/train_model.py
+
+3. Save score thresholds
+python src/scripts/save_thresholds.py
+```
 Run the application
-
 ```bash
 streamlit run src/dashboard/app.py
 ```
-
 ---
-
 # 📊 Dashboard Features
 
 - Professional Sidebar
