@@ -98,7 +98,7 @@ behavioral-fraud-detection/
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/behavioral-fraud-detection.git
+git clone https://github.com/Saipathi-123/behavioral-fraud-detection.git
 ```
 
 Navigate into the project
