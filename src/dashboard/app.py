@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import json
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
 # --------------------------------------------------
 # Configure Page
@@ -15,31 +19,45 @@ st.set_page_config(
 # --------------------------------------------------
 # Sidebar
 # --------------------------------------------------
-st.sidebar.header("📋 Project Details")
+st.sidebar.header("Project Details")
 
 st.sidebar.info("""
-**Version:** 1.0
+**Version:** 1.1
 
 **Model:** Isolation Forest
 
-**Detection:** Behavioral Biometrics
+**Detection:** Behavioral Biometrics (session-level)
 
 **ML Type:** Unsupervised Learning
 
 **Developer:** Sai Pathi
 """)
 
-st.sidebar.header("⚙️ System Status")
-
-st.sidebar.success("✅ Model Loaded")
-st.sidebar.success("✅ Scaler Loaded")
-st.sidebar.success("✅ Dashboard Active")
+st.sidebar.header("System Status")
 
 # --------------------------------------------------
-# Load Model
+# Load Model, Scaler, Thresholds
 # --------------------------------------------------
-model = joblib.load("models/isolation_forest.pkl")
-scaler = joblib.load("models/scaler.pkl")
+try:
+    model = joblib.load(ROOT_DIR / "models/isolation_forest.pkl")
+    scaler = joblib.load(ROOT_DIR / "models/scaler.pkl")
+    st.sidebar.success("Model Loaded")
+    st.sidebar.success("Scaler Loaded")
+except FileNotFoundError:
+    st.sidebar.error("Model/scaler not found — run train_model.py first")
+    st.stop()
+
+thresholds_path = ROOT_DIR / "models/thresholds.json"
+if thresholds_path.exists():
+    with open(thresholds_path) as f:
+        thresholds = json.load(f)
+    st.sidebar.success("Thresholds Loaded")
+else:
+    # Fallback only if save_thresholds.py hasn't been run yet
+    thresholds = {"fraud": -0.05, "suspicious": 0.0}
+    st.sidebar.warning("thresholds.json not found — using fallback cutoffs")
+
+st.sidebar.success("Dashboard Active")
 
 # --------------------------------------------------
 # Title
@@ -53,54 +71,46 @@ st.caption(
 # --------------------------------------------------
 # User Inputs
 # --------------------------------------------------
-st.subheader("📥 User Behavior Input")
+st.subheader("📥 Session Behavior Input")
+st.caption(
+    "These are session-level summary stats (mean/std over a short window "
+    "of recent activity), matching what the model was trained on — not a "
+    "single instantaneous reading."
+)
 
 col1, col2 = st.columns(2)
 
 with col1:
-
-    typing_speed = st.number_input(
-        "⌨️ Typing Speed (chars/sec)",
-        min_value=0.0,
-        max_value=30.0,
-        value=8.0
+    typing_speed_mean = st.number_input(
+        "⌨️ Typing Speed — mean (chars/sec)",
+        min_value=0.0, max_value=30.0, value=3.0
     )
-
-    keystroke_interval = st.number_input(
-        "⌨️ Keystroke Interval (ms)",
-        min_value=0.0,
-        max_value=1000.0,
-        value=120.0
+    typing_speed_std = st.number_input(
+        "⌨️ Typing Speed — std dev",
+        min_value=0.0, max_value=15.0, value=0.5,
+        help="Bots tend to have very low variance; humans vary more."
     )
-
-    session_duration = st.number_input(
-        "⏱️ Session Duration (sec)",
-        min_value=0.0,
-        max_value=7200.0,
-        value=600.0
+    keystroke_interval_ms = st.number_input(
+        "⌨️ Keystroke Interval — mean (ms)",
+        min_value=0.0, max_value=1000.0, value=110.0
+    )
+    session_duration_mean = st.number_input(
+        "⏱️ Session Duration — mean (sec)",
+        min_value=0.0, max_value=7200.0, value=600.0
     )
 
 with col2:
-
-    mouse_speed = st.number_input(
-        "🖱️ Mouse Speed",
-        min_value=0.0,
-        max_value=2000.0,
-        value=500.0
+    mouse_speed_mean = st.number_input(
+        "🖱️ Mouse Speed — mean",
+        min_value=0.0, max_value=2000.0, value=300.0
     )
-
-    actions_per_min = st.number_input(
-        "⚡ Actions Per Minute",
-        min_value=0.0,
-        max_value=500.0,
-        value=25.0
+    actions_per_min_mean = st.number_input(
+        "⚡ Actions Per Minute — mean",
+        min_value=0.0, max_value=500.0, value=30.0
     )
-
     ip_change_rate = st.number_input(
-        "🌐 IP Change Rate",
-        min_value=0.0,
-        max_value=10.0,
-        value=0.0
+        "🌐 IP Change Rate (fraction of window with a change)",
+        min_value=0.0, max_value=1.0, value=0.0
     )
 
 # --------------------------------------------------
@@ -109,62 +119,47 @@ with col2:
 if st.button("🔍 Analyze User Behavior"):
 
     input_df = pd.DataFrame([{
-        "typing_speed": typing_speed,
-        "keystroke_interval": keystroke_interval / 1000,
-        "mouse_speed": mouse_speed,
-        "actions_per_min": actions_per_min,
-        "session_duration": session_duration,
-        "ip_change": ip_change_rate
+        "typing_speed_mean": typing_speed_mean,
+        "typing_speed_std": typing_speed_std,
+        "keystroke_interval_mean": keystroke_interval_ms / 1000,
+        "mouse_speed_mean": mouse_speed_mean,
+        "actions_per_min_mean": actions_per_min_mean,
+        "session_duration_mean": session_duration_mean,
+        "ip_change_rate": ip_change_rate,
     }])
 
-    X_scaled = scaler.transform(input_df)
+    # Match the exact column order the scaler was fit on
+    input_df = input_df[scaler.feature_names_in_]
 
+    X_scaled = scaler.transform(input_df)
     score = model.decision_function(X_scaled)[0]
 
     # ----------------------------------------------
-    # Prediction Label
+    # Prediction Label — driven by thresholds.json, not hardcoded cutoffs
     # ----------------------------------------------
-    if score < -0.05:
+    if score < thresholds["fraud"]:
         prediction = "🚨 HIGH"
-    elif score < 0:
+    elif score < thresholds["suspicious"]:
         prediction = "🟡 MEDIUM"
     else:
         prediction = "🟢 LOW"
 
-    # ----------------------------------------------
-    # AI Analysis
-    # ----------------------------------------------
     st.subheader("🧠 AI Analysis Report")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric(
-            "📊 Risk Score",
-            f"{score:.4f}"
-        )
-
+        st.metric("📊 Risk Score", f"{score:.4f}")
     with col2:
-        st.metric(
-            "🎯 Threat Level",
-            prediction
-        )
-
+        st.metric("🎯 Threat Level", prediction)
     with col3:
-        st.metric(
-            "🤖 Model",
-            "Isolation Forest"
-        )
+        st.metric("🤖 Model", "Isolation Forest")
 
     st.divider()
 
-    # ----------------------------------------------
-    # AI Recommendation
-    # ----------------------------------------------
     st.subheader("💡 AI Security Recommendation")
 
-    if score < -0.05:
-
+    if score < thresholds["fraud"]:
         st.error("""
 ### 🚨 High Risk Detected
 
@@ -176,9 +171,7 @@ if st.button("🔍 Analyze User Behavior"):
 - Review login activity
 - Start incident investigation
 """)
-
-    elif score < 0:
-
+    elif score < thresholds["suspicious"]:
         st.warning("""
 ### ⚠️ Suspicious Activity
 
@@ -189,9 +182,7 @@ if st.button("🔍 Analyze User Behavior"):
 - Record user activity
 - Continue behavioral monitoring
 """)
-
     else:
-
         st.success("""
 ### ✅ Normal Behavior
 
@@ -211,10 +202,8 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.caption("🛡️ Behavioral Fraud Detection")
-
 with col2:
     st.caption("🤖 Isolation Forest Model")
-
 with col3:
     st.caption("👨‍💻 Developed by Sai Pathi")
 

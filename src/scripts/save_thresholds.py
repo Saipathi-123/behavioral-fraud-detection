@@ -3,25 +3,20 @@ import joblib
 import json
 import numpy as np
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from features.feature_engineering import FEATURE_COLUMNS
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
-DATA_PATH = ROOT_DIR / "data/raw/simulated_events.csv"
+DATA_PATH = ROOT_DIR / "data/processed/behavior_features.csv"
 MODEL_PATH = ROOT_DIR / "models/isolation_forest.pkl"
 SCALER_PATH = ROOT_DIR / "models/scaler.pkl"
 THRESHOLD_PATH = ROOT_DIR / "models/thresholds.json"
 
-FEATURES = [
-    "typing_speed",
-    "keystroke_interval",
-    "mouse_speed",
-    "actions_per_min",
-    "session_duration",
-    "ip_change"
-]
-
 df = pd.read_csv(DATA_PATH)
-X = df[FEATURES]
+X = df[FEATURE_COLUMNS]
 
 scaler = joblib.load(SCALER_PATH)
 model = joblib.load(MODEL_PATH)
@@ -37,6 +32,6 @@ thresholds = {
 with open(THRESHOLD_PATH, "w") as f:
     json.dump(thresholds, f, indent=4)
 
-print("✅ Thresholds saved successfully")
+print("Thresholds saved successfully")
 print("Fraud threshold     :", thresholds["fraud"])
 print("Suspicious threshold:", thresholds["suspicious"])

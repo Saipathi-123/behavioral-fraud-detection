@@ -1,3 +1,4 @@
+
 # 🛡️ AI-Powered Behavioral Fraud Detection Platform
 
 > **A Machine Learning-Based Behavioral Biometrics System for Real-Time Login Risk Assessment and Anomaly Detection**
@@ -434,10 +435,134 @@ behavioral-fraud-detection/
 │   │   └── realtime_fraud_detector.py
 │   │
 │   └── utils/
+=======
+# AI Behavioral Fraud Detection Platform
+
+An end-to-end behavioral biometrics system that detects account takeover and suspicious user activity using unsupervised machine learning.
+
+The platform builds session-level behavioral features — typing rhythm, mouse dynamics, session duration, and IP change rate — from raw event data, then scores them for anomalies with an Isolation Forest.
+
+---
+
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Machine Learning & Data Pipeline](#machine-learning--data-pipeline)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Model Evaluation](#model-evaluation)
+- [Known Limitations](#known-limitations)
+- [Future Enhancements](#future-enhancements)
+- [Author](#author)
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---|---|
+| **Unsupervised Anomaly Detection** | Isolation Forest (`scikit-learn`), with `contamination` tuned to the data's actual fraud rate rather than guessed |
+| **Session-Level Behavioral Features** | A single, consistent feature set (mean/std typing speed, keystroke interval, mouse speed, actions/min, session duration, IP change rate) used identically by training, thresholding, the dashboard, and the streaming detector |
+| **Real-Time Streaming Simulation** | Live event generator paired with a streaming detector that scores each simulated session |
+| **Threshold-Driven Risk Levels** | Fraud/suspicious cutoffs are computed from the score distribution (`save_thresholds.py`) and actually loaded by the dashboard at runtime |
+| **Interactive Streamlit Dashboard** | Manual session-input form with risk score, threat level, and recommended actions |
+| **Offline Evaluation** | A dedicated script checks the unsupervised model's precision/recall against the ground-truth labels present in the synthetic data |
+
+---
+
+## Machine Learning & Data Pipeline
+
+- **Algorithm:** Isolation Forest (`scikit-learn`)
+- **Learning Type:** Unsupervised anomaly detection (labels are never used during training — only for offline evaluation)
+
+**Session-level features** (the single source of truth is `FEATURE_COLUMNS` in `src/features/feature_engineering.py`):
+
+- `typing_speed_mean`, `typing_speed_std`
+- `keystroke_interval_mean`
+- `mouse_speed_mean`
+- `actions_per_min_mean`
+- `session_duration_mean`
+- `ip_change_rate`
+
+These are built by sliding a window over each **individual user's** own event history (never mixing two users' events into one window) and aggregating the raw per-event columns.
+
+---
+
+## System Architecture
+
+```text
+              ┌────────────────────────────────────┐
+              │   Simulated Events Logging Engine   │
+              │  (data/raw/simulated_events.csv)    │
+              └──────────────────┬───────────────────┘
+                                  │
+                                  ▼
+              ┌────────────────────────────────────┐
+              │     Feature Engineering Pipeline    │
+              │ (src/features/feature_engineering.py)│
+              │  per-user rolling window → session   │
+              │  level features (data/processed/)    │
+              └──────────────────┬───────────────────┘
+                                  │
+                                  ▼
+              ┌────────────────────────────────────┐
+              │     Model Training & Calibration    │
+              │    (src/models/train_model.py)      │
+              │  - StandardScaler & IsolationForest  │
+              │  - contamination = empirical rate    │
+              └──────────────────┬───────────────────┘
+                                  │
+                 ┌────────────────┴────────────────┐
+                 ▼                                  ▼
+   ┌─────────────────────────────┐    ┌─────────────────────────────┐
+   │  Real-Time Streaming Engine  │    │   Streamlit Security Portal  │
+   │ (src/stream/realtime_        │    │   (src/dashboard/app.py)     │
+   │   fraud_detector.py)         │    │  - session-level input form  │
+   │ - simulates a session, then  │    │  - loads thresholds.json     │
+   │   scores it with the same    │    │    at runtime                │
+   │   feature set as training    │    │                               │
+   └─────────────────────────────┘    └─────────────────────────────┘
+```
+
+Every consumer of the model (dashboard, streaming detector, evaluation script) transforms input into the exact same 7-column feature set the model was trained and scaled on — verified by `scaler.feature_names_in_` matching in every script.
+
+---
+
+## Project Structure
+
+```text
+behavioral-fraud-detection/
 │
-├── requirements.txt
+├── data/
+│   ├── raw/                          # Simulated event logs
+│   └── processed/                    # Session-level engineered features
+│
+├── models/
+│   ├── isolation_forest.pkl          # Trained Isolation Forest model
+│   ├── scaler.pkl                    # Feature scaling parameters
+│   └── thresholds.json               # Risk-level score cutoffs
+│
+├── src/
+│   ├── dashboard/
+│   │   └── app.py                    # Streamlit dashboard UI
+│   ├── features/
+│   │   └── feature_engineering.py    # Per-user windowed feature extraction
+│   ├── models/
+│   │   └── train_model.py            # Model training script
+│   ├── scripts/
+│   │   ├── inspect_scores.py         # Score distribution analysis
+│   │   ├── save_thresholds.py        # Threshold config saver
+│   │   └── evaluate_model.py         # Offline precision/recall vs. labels
+│   └── stream/
+│       ├── full_event_generator.py       # Synthetic event simulator
+│       └── realtime_fraud_detector.py    # Real-time detection loop
+>>>>>>> cca1555 (Release v2.0: Enhanced ML pipeline, feature engineering, and dashboard)
+│
+├── .gitignore
 ├── README.md
-└── .gitignore
+└── requirements.txt
 ```
 
 ---
@@ -549,6 +674,7 @@ screenshots/security_recommendation.png
 
 ---
 
+<<<<<<< HEAD
 # ⚙️ Installation
 
 ## 1️⃣ Clone the Repository
@@ -560,9 +686,14 @@ git clone https://github.com/Saipathi-123/behavioral-fraud-detection.git
 ---
 
 ## 2️⃣ Navigate to the Project Directory
+=======
+## Installation
+>>>>>>> cca1555 (Release v2.0: Enhanced ML pipeline, feature engineering, and dashboard)
 
 ```bash
+git clone https://github.com/Saipathi-123/behavioral-fraud-detection.git
 cd behavioral-fraud-detection
+<<<<<<< HEAD
 ```
 
 ---
@@ -613,11 +744,42 @@ This generates the custom anomaly score thresholds used for threat classificatio
 ---
 
 ## Step 4 — Launch the Dashboard
+=======
+pip install -r requirements.txt
+```
+
+## Usage
+
+Run the full pipeline in order from the project root — each step depends on the previous one's output:
+
+```bash
+# 1. Generate simulated raw behavioral events
+python src/stream/full_event_generator.py
+
+# 2. Build session-level features from the raw events
+python src/features/feature_engineering.py
+
+# 3. Train the Isolation Forest model and save artifacts
+python src/models/train_model.py
+
+# 4. Compute and save risk-level score thresholds
+python src/scripts/save_thresholds.py
+
+# 5. (optional) Inspect the score distribution
+python src/scripts/inspect_scores.py
+
+# 6. (optional) Evaluate against ground-truth labels
+python src/scripts/evaluate_model.py
+```
+
+Then launch the dashboard:
+>>>>>>> cca1555 (Release v2.0: Enhanced ML pipeline, feature engineering, and dashboard)
 
 ```bash
 streamlit run src/dashboard/app.py
 ```
 
+<<<<<<< HEAD
 Once the server starts, open the local Streamlit URL in your browser to access the Behavioral Fraud Detection Dashboard.
 
 ---
@@ -804,11 +966,52 @@ If you would like to improve this project:
 5. Open a Pull Request.
 
 Suggestions, feature requests, and bug reports are always appreciated.
+=======
+Or run the streaming demo:
+
+```bash
+python src/stream/realtime_fraud_detector.py
+```
 
 ---
 
-# 👨‍💻 Author
+## Model Evaluation
 
+`evaluate_model.py` checks the unsupervised model's output against the ground-truth labels that exist in the synthetic dataset (present only because the data is simulated — training itself never sees them). Typical output on the current synthetic data:
+
+```
+              precision    recall  f1-score   support
+      normal       0.73      0.72      0.73       727
+      fraud        0.38      0.39      0.39       323
+```
+
+This is intentionally reported as-is rather than smoothed over — see Known Limitations below for why recall/precision are modest.
+>>>>>>> cca1555 (Release v2.0: Enhanced ML pipeline, feature engineering, and dashboard)
+
+---
+
+## Known Limitations
+
+- **The synthetic generator interleaves fraud and normal events within the same user session** (event-by-event, not session-by-session), so a rolling window often averages together a mix of both. This caps how separable the two classes can be and is the main reason evaluation precision/recall aren't higher — it's a property of the training data's realism, not a bug in the model or pipeline.
+- Thresholds and contamination are calibrated against this specific synthetic dataset; regenerating the data (or pointing this at real behavioral logs) requires re-running the full pipeline, not just retraining.
+- The dashboard's manual input form asks for session-level summary stats (mean/std), which is a reasonable proxy for a real session but isn't literally what a live browser session would submit — a production version would compute these from real event streams the same way `feature_engineering.py` does.
+
+---
+
+## Future Enhancements
+
+- [ ] Regenerate synthetic sessions with coherent per-session behavior (a session is either consistently fraud or consistently normal) to better test detection under realistic conditions
+- [ ] Explainable AI (XAI) for individual risk scores
+- [ ] Live login monitoring against real event streams
+- [ ] Database integration
+- [ ] User authentication
+- [ ] Downloadable security reports
+
+---
+
+## Author
+
+<<<<<<< HEAD
 ## Sai Pathi
 
 **B.Tech – Information Technology**
@@ -863,4 +1066,8 @@ It helps others discover the project and motivates further improvements.
 
 © 2026 Sai Pathi. All Rights Reserved.
 
-</div>
+
+=======
+**Sai Pathi**
+AI & Machine Learning Enthusiast
+
