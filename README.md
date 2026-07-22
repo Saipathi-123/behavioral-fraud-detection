@@ -432,6 +432,7 @@ behavioral-fraud-detection/
 │   ├── scripts/
 │   │   ├── inspect_scores.py
 │   │   └── save_thresholds.py
+│   │   └── evaluate_model.py
 │   │
 │   ├── stream/
 │   │   ├── full_event_generator.py
