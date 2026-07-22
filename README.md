@@ -1,5 +1,9 @@
 # 🛡️ AI-Powered Behavioral Fraud Detection Platform
 
+<p align="center">
+  <img src="banner.png" alt="Behavioral Fraud Detection Platform Banner" width="100%">
+</p>
+
 > **A Machine Learning-Based Behavioral Biometrics System for Real-Time Login Risk Assessment and Anomaly Detection**
 
 <p align="center">
