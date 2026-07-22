@@ -3,7 +3,7 @@
 > **A Machine Learning-Based Behavioral Biometrics System for Real-Time Login Risk Assessment and Anomaly Detection**
 
 <p align="center">
-
+![Version](https://img.shields.io/badge/version-2.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Isolation%20Forest-orange?logo=scikitlearn&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-red?logo=streamlit&logoColor=white)
@@ -412,7 +412,6 @@ behavioral-fraud-detection/
 ├── models/
 │   ├── isolation_forest.pkl
 │   ├── scaler.pkl
-│   ├── score_thresholds.pkl
 │   └── thresholds.json
 │
 ├── src/
@@ -520,7 +519,7 @@ Based on the predicted threat level, the dashboard provides actionable recommend
 ### Home Dashboard
 
 ```
-screenshots/home_dashboard.png
+Screenshots and demo videos will be added soon after final UI documentation.
 ```
 
 ---
@@ -528,7 +527,7 @@ screenshots/home_dashboard.png
 ### AI Analysis Report
 
 ```
-screenshots/analysis_report.png
+Screenshots and demo videos will be added soon after final UI documentation.
 ```
 
 ---
@@ -536,7 +535,7 @@ screenshots/analysis_report.png
 ### Threat Detection
 
 ```
-screenshots/threat_detection.png
+Screenshots and demo videos will be added soon after final UI documentation.
 ```
 
 ---
@@ -544,7 +543,7 @@ screenshots/threat_detection.png
 ### Security Recommendation
 
 ```
-screenshots/security_recommendation.png
+Screenshots and demo videos will be added soon after final UI documentation.
 ```
 
 ---
@@ -821,8 +820,7 @@ Passionate about building intelligent systems that combine Machine Learning, Art
 ### Connect with me
 
 - GitHub: https://github.com/Saipathi-123
-- LinkedIn: *(Add your LinkedIn profile URL here)*
-
+- LinkedIn:https://www.linkedin.com/in/sai-pathi-3b615b358/
 ---
 
 # 📄 License
